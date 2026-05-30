@@ -9,8 +9,8 @@ CORS(app)
 db_config = {
     "host": "database-1.cr8qyu4g4bkn.ap-south-1.rds.amazonaws.com",  
     "user": "admin",
-    "password": "Admin123#",
-    "database": "ytdatabase"
+    "password": "admin12345",
+    "database": "LoginDB"
 }
 
 @app.route('/login', methods=['GET'])
