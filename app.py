@@ -7,7 +7,7 @@ CORS(app)
 
 # Add your Database connection details in the below three lines
 db_config = {
-    "host": "ytdb.cpk8oagkgyaz.ap-south-1.rds.amazonaws.com",  
+    "host": "database-1.cr8qyu4g4bkn.ap-south-1.rds.amazonaws.com",  
     "user": "admin",
     "password": "Admin123#",
     "database": "ytdatabase"
