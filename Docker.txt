@@ -1,0 +1,216 @@
+1. Launch EC2 Instance
+
+In AWS Console:
+
+Open Amazon EC2 Console
+Click Launch Instance
+Select:
+Amazon Linux 2023 (recommended)
+t2.micro (free tier) or t3.small
+Create/download a key pair (.pem)
+Configure Security Group:
+Type	Port
+SSH	22
+HTTP	80
+HTTPS	443
+Custom TCP	5000 (if backend exposed directly)
+Launch instance
+2. Connect to EC2
+
+From your local machine:
+
+chmod 400 mykey.pem
+
+ssh -i mykey.pem ec2-user@EC2_PUBLIC_IP
+
+Example:
+
+ssh -i aws-prod.pem ec2-user@54.123.45.67
+3. Install Docker
+
+Update system:
+
+sudo dnf update -y
+
+Install Docker:
+
+sudo dnf install docker -y
+
+Start Docker:
+
+sudo systemctl start docker
+sudo systemctl enable docker
+
+Verify:
+
+docker --version
+
+Example:
+
+Docker version 28.x.x
+4. Allow Current User to Run Docker
+sudo usermod -aG docker ec2-user
+
+Apply changes:
+
+newgrp docker
+
+Verify:
+
+docker ps
+
+No sudo should be needed.
+
+5. Install Git
+sudo dnf install git -y
+
+Verify:
+
+git --version
+6. Pull Code from GitHub
+
+Go to home directory:
+
+cd ~
+
+Clone repository:
+
+git clone https://github.com/your-org/your-repo.git
+
+Example:
+
+git clone https://github.com/john/project.git
+
+Move into project:
+
+cd your-repo
+
+Verify files:
+
+ls
+
+Expected:
+
+frontend/
+backend/
+Dockerfile
+docker-compose.yml
+7. Create Dockerfile for Backend
+
+Example Flask backend:
+
+FROM python:3.11-slim
+
+WORKDIR /app
+
+COPY requirements.txt .
+
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+EXPOSE 5000
+
+CMD ["python","app.py"]
+
+Save as:
+
+backend/Dockerfile
+8. Create Dockerfile for Frontend
+FROM nginx:alpine
+
+COPY . /usr/share/nginx/html
+
+EXPOSE 80
+
+Save as:
+
+frontend/Dockerfile
+9. Create Docker Compose File
+
+Project structure:
+
+project
+│
+├── frontend
+│   ├── Dockerfile
+│   ├── index.html
+│   ├── scripts.js
+│   └── style.css
+│
+├── backend
+│   ├── Dockerfile
+│   ├── app.py
+│   └── requirements.txt
+│
+└── docker-compose.yml
+
+Create:
+
+version: "3.8"
+
+services:
+
+  backend:
+    build: ./backend
+    container_name: backend
+    restart: always
+    ports:
+      - "5000:5000"
+
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+10. Install Docker Compose
+
+Check if installed:
+
+docker compose version
+
+Modern Docker already includes Compose.
+
+If not:
+
+sudo dnf install docker-compose-plugin -y
+
+Verify:
+
+docker compose version
+11. Build Containers
+
+From project root:
+
+docker compose build
+
+Expected:
+
+Successfully built ...
+12. Start Containers
+docker compose up -d
+
+Check:
+
+docker ps
+
+Example:
+
+frontend    Up
+backend     Up
+13. Test Application
+
+Frontend:
+
+http://EC2_PUBLIC_IP
+
+Example:
+
+http://54.123.45.67
+
+Backend:
+
+http://EC2_PUBLIC_IP:5000
